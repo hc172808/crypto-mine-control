@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useWallet } from "@/contexts/WalletContext";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,20 +9,18 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Wallet, Plus, Send, Exchange, Coins } from "lucide-react";
+import { Wallet, Plus, Send, ArrowLeftRight, Coins } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Wallets = () => {
   const { wallets, generateWallet, addExternalWallet, sendCoins, convertCoins } = useWallet();
   const { toast } = useToast();
   
-  // Dialog state
   const [isNewWalletOpen, setIsNewWalletOpen] = useState(false);
   const [isExternalWalletOpen, setIsExternalWalletOpen] = useState(false);
   const [isSendOpen, setIsSendOpen] = useState(false);
   const [isConvertOpen, setIsConvertOpen] = useState(false);
   
-  // Form states
   const [newWalletType, setNewWalletType] = useState<"Bitcoin" | "Ethereum" | "Solana" | "Litecoin" | "Dogecoin">("Bitcoin");
   const [newWalletName, setNewWalletName] = useState("");
   const [externalWalletName, setExternalWalletName] = useState("");
@@ -36,79 +33,6 @@ const Wallets = () => {
   const [convertFromWalletId, setConvertFromWalletId] = useState("");
   const [convertToType, setConvertToType] = useState<"Bitcoin" | "Ethereum" | "Solana" | "Litecoin" | "Dogecoin">("Bitcoin");
 
-  // Handle wallet creation
-  const handleCreateWallet = async () => {
-    try {
-      await generateWallet(newWalletName, newWalletType);
-      setNewWalletName("");
-      setIsNewWalletOpen(false);
-    } catch (error) {
-      toast({
-        title: "Error creating wallet",
-        description: (error as Error).message,
-        variant: "destructive"
-      });
-    }
-  };
-
-  // Handle external wallet addition
-  const handleAddExternalWallet = async () => {
-    try {
-      await addExternalWallet(externalWalletName, externalWalletAddress, externalWalletType);
-      setExternalWalletName("");
-      setExternalWalletAddress("");
-      setIsExternalWalletOpen(false);
-    } catch (error) {
-      toast({
-        title: "Error adding wallet",
-        description: (error as Error).message,
-        variant: "destructive"
-      });
-    }
-  };
-
-  // Handle sending coins
-  const handleSendCoins = async () => {
-    try {
-      const amount = parseFloat(sendAmount);
-      if (isNaN(amount) || amount <= 0) {
-        throw new Error("Please enter a valid amount");
-      }
-      
-      await sendCoins(selectedWalletId, sendAddress, amount);
-      setSendAmount("");
-      setSendAddress("");
-      setIsSendOpen(false);
-    } catch (error) {
-      toast({
-        title: "Error sending coins",
-        description: (error as Error).message,
-        variant: "destructive"
-      });
-    }
-  };
-
-  // Handle converting coins
-  const handleConvertCoins = async () => {
-    try {
-      const amount = parseFloat(convertAmount);
-      if (isNaN(amount) || amount <= 0) {
-        throw new Error("Please enter a valid amount");
-      }
-      
-      await convertCoins(convertFromWalletId, convertToType, amount);
-      setConvertAmount("");
-      setIsConvertOpen(false);
-    } catch (error) {
-      toast({
-        title: "Error converting coins",
-        description: (error as Error).message,
-        variant: "destructive"
-      });
-    }
-  };
-
-  // Group wallets by type
   const walletsByType: Record<string, typeof wallets> = {};
   wallets.forEach(wallet => {
     if (!walletsByType[wallet.type]) {
@@ -281,7 +205,6 @@ const Wallets = () => {
         </Card>
       ) : (
         <>
-          {/* Summary card */}
           <Card>
             <CardHeader>
               <CardTitle>Portfolio Summary</CardTitle>
@@ -371,7 +294,7 @@ const Wallets = () => {
               <Dialog open={isConvertOpen} onOpenChange={setIsConvertOpen}>
                 <DialogTrigger asChild>
                   <Button>
-                    <Exchange className="mr-2 h-4 w-4" />
+                    <ArrowLeftRight className="mr-2 h-4 w-4" />
                     Convert
                   </Button>
                 </DialogTrigger>
@@ -485,7 +408,6 @@ const Wallets = () => {
   );
 };
 
-// Wallet Card Component
 const WalletCard = ({ wallet }: { wallet: any }) => (
   <Card>
     <CardHeader className="pb-2">

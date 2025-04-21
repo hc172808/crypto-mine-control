@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useWallet } from "@/contexts/WalletContext";
@@ -10,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Wallet, Send, Exchange, Copy, ArrowLeft, Shield } from "lucide-react";
+import { Wallet, Send, ArrowLeftRight, Copy, ArrowLeft, Shield } from "lucide-react";
 
 const WalletDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -21,17 +20,14 @@ const WalletDetails = () => {
   const wallet = getWalletById(id || "");
   const walletTransactions = id ? getWalletTransactions(id) : [];
   
-  // Dialog state
   const [isSendOpen, setIsSendOpen] = useState(false);
   const [isConvertOpen, setIsConvertOpen] = useState(false);
   
-  // Form states
   const [sendAmount, setSendAmount] = useState("");
   const [sendAddress, setSendAddress] = useState("");
   const [convertAmount, setConvertAmount] = useState("");
   const [convertToType, setConvertToType] = useState<"Bitcoin" | "Ethereum" | "Solana" | "Litecoin" | "Dogecoin">("Bitcoin");
 
-  // Handle copy address
   const handleCopyAddress = () => {
     if (wallet) {
       navigator.clipboard.writeText(wallet.address);
@@ -42,7 +38,6 @@ const WalletDetails = () => {
     }
   };
 
-  // Handle sending coins
   const handleSendCoins = async () => {
     try {
       if (!wallet || !id) return;
@@ -65,7 +60,6 @@ const WalletDetails = () => {
     }
   };
 
-  // Handle converting coins
   const handleConvertCoins = async () => {
     try {
       if (!wallet || !id) return;
@@ -87,7 +81,6 @@ const WalletDetails = () => {
     }
   };
 
-  // Handle set as default
   const handleSetDefault = () => {
     if (wallet && !wallet.isDefault) {
       setDefaultWallet(wallet.id);
@@ -230,7 +223,7 @@ const WalletDetails = () => {
               <Dialog open={isConvertOpen} onOpenChange={setIsConvertOpen}>
                 <DialogTrigger asChild>
                   <Button className="flex-1">
-                    <Exchange className="mr-2 h-4 w-4" />
+                    <ArrowLeftRight className="mr-2 h-4 w-4" />
                     Convert
                   </Button>
                 </DialogTrigger>
@@ -337,7 +330,7 @@ const WalletDetails = () => {
                         ) : transaction.type === "receive" ? (
                           <Wallet className="h-8 w-8 p-1.5 rounded-full bg-green-100 text-green-600" />
                         ) : (
-                          <Exchange className="h-8 w-8 p-1.5 rounded-full bg-blue-100 text-blue-600" />
+                          <ArrowLeftRight className="h-8 w-8 p-1.5 rounded-full bg-blue-100 text-blue-600" />
                         )}
                         <div>
                           <p className="font-medium">

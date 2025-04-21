@@ -1,11 +1,7 @@
-
 import React, { createContext, useState, useContext, useEffect } from "react";
 import { useAuth } from "./AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import * as bip39 from "bip39";
-
-// Adding bip39 dependency
-<lov-add-dependency>bip39@3.1.0</lov-add-dependency>
 
 type CoinType = "Bitcoin" | "Ethereum" | "Solana" | "Litecoin" | "Dogecoin";
 
