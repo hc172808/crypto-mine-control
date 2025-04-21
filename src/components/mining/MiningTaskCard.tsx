@@ -1,131 +1,131 @@
 
 import React from "react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useMining } from "@/contexts/MiningContext";
-import { Play, Pause, Settings, Coins } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { Separator } from "@/components/ui/separator";
+import { PlayCircle, PauseCircle, StopCircle, Settings } from "lucide-react";
 
-type MiningTaskCardProps = {
-  taskId: string;
-};
+interface MiningTaskCardProps {
+  task: {
+    id: string;
+    title: string;
+    coin: string;
+    status: "running" | "paused" | "stopped";
+    hashrate: number;
+    estimatedRewards: number;
+    progress: number;
+  };
+  onStart: (id: string) => void;
+  onPause: (id: string) => void;
+  onStop: (id: string) => void;
+  onSettings: (id: string) => void;
+}
 
-export function MiningTaskCard({ taskId }: MiningTaskCardProps) {
-  const { getTaskById, pauseMining, resumeMining, stopMining } = useMining();
-  const task = getTaskById(taskId);
-
-  if (!task) {
-    return null;
-  }
-
-  const isRunning = task.status === "running";
-  const isPaused = task.status === "paused";
-  const isActive = isRunning || isPaused;
-  const isCompleted = task.status === "completed";
-  const isFailed = task.status === "failed";
+export const MiningTaskCard = ({
+  task,
+  onStart,
+  onPause,
+  onStop,
+  onSettings,
+}: MiningTaskCardProps) => {
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "running":
+        return "bg-green-500 text-white";
+      case "paused":
+        return "bg-yellow-500 text-white";
+      case "stopped":
+        return "bg-gray-500 text-white";
+      default:
+        return "";
+    }
+  };
 
   return (
-    <Card>
+    <Card className="w-full">
       <CardHeader className="pb-2">
-        <CardTitle className="flex justify-between items-center">
-          <span className="flex items-center">
-            <Coins className="mr-2 h-4 w-4" />
-            {task.coinType}
-          </span>
-          <Badge className={
-            `${
-              isRunning 
-                ? "bg-success/20 text-success" 
-                : isPaused 
-                ? "bg-warning/20 text-warning" 
-                : isCompleted 
-                ? "bg-primary/20 text-primary" 
-                : "bg-destructive/20 text-destructive"
-            }`
-          }>
-            {task.status.charAt(0).toUpperCase() + task.status.slice(1)}
+        <div className="flex justify-between items-center">
+          <CardTitle className="text-lg font-medium">{task.title}</CardTitle>
+          <Badge variant="default">
+            {task.coin}
           </Badge>
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="grid grid-cols-2 gap-2 text-sm">
-          <div className="flex flex-col">
-            <span className="text-muted-foreground">Algorithm</span>
-            <span className="font-medium">{task.algorithm}</span>
-          </div>
-          <div className="flex flex-col">
-            <span className="text-muted-foreground">Hash Rate</span>
-            <span className="font-medium">{task.hashrate.toFixed(2)} H/s</span>
-          </div>
-          <div className="flex flex-col">
-            <span className="text-muted-foreground">Target Reward</span>
-            <span className="font-medium">{task.targetReward.toFixed(5)} {task.coinType}</span>
-          </div>
-          <div className="flex flex-col">
-            <span className="text-muted-foreground">Start Time</span>
-            <span className="font-medium">{new Date(task.startTime).toLocaleString()}</span>
-          </div>
-          <div className="flex flex-col">
-            <span className="text-muted-foreground">
-              {isCompleted || isFailed ? "End Time" : "Estimated"}
-            </span>
-            <span className="font-medium">
-              {task.endTime 
-                ? new Date(task.endTime).toLocaleString() 
-                : "Calculating..."}
-            </span>
-          </div>
-          {isCompleted && task.actualReward && (
-            <div className="flex flex-col col-span-2">
-              <span className="text-muted-foreground">Actual Reward</span>
-              <span className="font-medium text-lg text-primary">
-                {task.actualReward.toFixed(5)} {task.coinType}
-              </span>
-            </div>
-          )}
         </div>
-        
-        <div className="space-y-1">
-          <div className="flex justify-between text-sm">
-            <span>Progress</span>
-            <span>{Math.round(task.progress)}%</span>
+      </CardHeader>
+      <CardContent className="space-y-4 pb-2">
+        <div className="flex justify-between items-center text-sm">
+          <span className="text-muted-foreground">Status:</span>
+          <span
+            className={`px-2 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
+              task.status
+            )}`}
+          >
+            {task.status.charAt(0).toUpperCase() + task.status.slice(1)}
+          </span>
+        </div>
+        <div className="flex justify-between items-center text-sm">
+          <span className="text-muted-foreground">Hashrate:</span>
+          <span>{task.hashrate} H/s</span>
+        </div>
+        <div className="flex justify-between items-center text-sm">
+          <span className="text-muted-foreground">Est. Rewards:</span>
+          <span>
+            {task.estimatedRewards} {task.coin}/day
+          </span>
+        </div>
+        <div className="space-y-1.5">
+          <div className="flex justify-between items-center text-sm">
+            <span className="text-muted-foreground">Progress:</span>
+            <span>{task.progress}%</span>
           </div>
-          <Progress value={task.progress} />
+          <Progress value={task.progress} className="h-2" />
         </div>
       </CardContent>
-      
-      {isActive && (
-        <CardFooter className="gap-2">
-          {isRunning ? (
-            <Button 
+      <Separator />
+      <CardFooter className="pt-4">
+        <div className="flex space-x-2 w-full">
+          {task.status === "running" ? (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onPause(task.id)}
               className="flex-1"
-              variant="outline" 
-              onClick={() => pauseMining(task.id)}
             >
-              <Pause className="mr-2 h-4 w-4" />
+              <PauseCircle className="h-4 w-4 mr-2" />
               Pause
             </Button>
           ) : (
-            <Button 
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onStart(task.id)}
               className="flex-1"
-              variant="outline" 
-              onClick={() => resumeMining(task.id)}
             >
-              <Play className="mr-2 h-4 w-4" />
-              Resume
+              <PlayCircle className="h-4 w-4 mr-2" />
+              Start
             </Button>
           )}
-          <Button 
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onStop(task.id)}
             className="flex-1"
-            variant="destructive" 
-            onClick={() => stopMining(task.id)}
           >
-            <Settings className="mr-2 h-4 w-4" />
+            <StopCircle className="h-4 w-4 mr-2" />
             Stop
           </Button>
-        </CardFooter>
-      )}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onSettings(task.id)}
+            className="flex-1"
+          >
+            <Settings className="h-4 w-4 mr-2" />
+            Config
+          </Button>
+        </div>
+      </CardFooter>
     </Card>
   );
-}
+};
