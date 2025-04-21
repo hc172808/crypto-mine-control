@@ -2,8 +2,9 @@
 import React from "react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { useMining } from "@/contexts/MiningContext";
-import { Play, Pause, Settings } from "lucide-react";
+import { Play, Pause, Settings, Coins } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 
 type MiningTaskCardProps = {
@@ -28,9 +29,12 @@ export function MiningTaskCard({ taskId }: MiningTaskCardProps) {
     <Card>
       <CardHeader className="pb-2">
         <CardTitle className="flex justify-between items-center">
-          <span>{task.algorithm} Mining Task</span>
-          <span className={
-            `text-sm px-2 py-1 rounded-full ${
+          <span className="flex items-center">
+            <Coins className="mr-2 h-4 w-4" />
+            {task.coinType}
+          </span>
+          <Badge className={
+            `${
               isRunning 
                 ? "bg-success/20 text-success" 
                 : isPaused 
@@ -41,18 +45,22 @@ export function MiningTaskCard({ taskId }: MiningTaskCardProps) {
             }`
           }>
             {task.status.charAt(0).toUpperCase() + task.status.slice(1)}
-          </span>
+          </Badge>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid grid-cols-2 gap-2 text-sm">
+          <div className="flex flex-col">
+            <span className="text-muted-foreground">Algorithm</span>
+            <span className="font-medium">{task.algorithm}</span>
+          </div>
           <div className="flex flex-col">
             <span className="text-muted-foreground">Hash Rate</span>
             <span className="font-medium">{task.hashrate.toFixed(2)} H/s</span>
           </div>
           <div className="flex flex-col">
             <span className="text-muted-foreground">Target Reward</span>
-            <span className="font-medium">{task.targetReward.toFixed(5)} Coins</span>
+            <span className="font-medium">{task.targetReward.toFixed(5)} {task.coinType}</span>
           </div>
           <div className="flex flex-col">
             <span className="text-muted-foreground">Start Time</span>
@@ -72,7 +80,7 @@ export function MiningTaskCard({ taskId }: MiningTaskCardProps) {
             <div className="flex flex-col col-span-2">
               <span className="text-muted-foreground">Actual Reward</span>
               <span className="font-medium text-lg text-primary">
-                {task.actualReward.toFixed(5)} Coins
+                {task.actualReward.toFixed(5)} {task.coinType}
               </span>
             </div>
           )}

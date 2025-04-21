@@ -2,6 +2,8 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
 import { useAuth } from "./AuthContext";
 
+type CoinType = "Bitcoin" | "Ethereum" | "Solana" | "Litecoin" | "Dogecoin";
+
 type MiningTask = {
   id: string;
   userId: string;
@@ -10,15 +12,18 @@ type MiningTask = {
   startTime: string;
   endTime?: string;
   progress: number;
-  algorithm: "SHA-256" | "Ethash" | "Scrypt";
+  algorithm: "SHA-256" | "Ethash" | "Scrypt" | "Solana-PoH" | "Equihash";
+  coinType: CoinType;
   targetReward: number;
   actualReward?: number;
 };
 
+type UserRole = "admin" | "client";
+
 type MiningContextType = {
   userTasks: MiningTask[];
   allTasks: MiningTask[] | null; // For admin use
-  startMining: (algorithm: "SHA-256" | "Ethash" | "Scrypt", targetReward: number) => Promise<MiningTask>;
+  startMining: (algorithm: "SHA-256" | "Ethash" | "Scrypt" | "Solana-PoH" | "Equihash", coinType: CoinType, targetReward: number) => Promise<MiningTask>;
   pauseMining: (taskId: string) => void;
   resumeMining: (taskId: string) => void;
   stopMining: (taskId: string) => void;
@@ -26,6 +31,16 @@ type MiningContextType = {
   getActiveTask: () => MiningTask | undefined;
   getSystemHashrate: () => number;
   getSystemTasks: () => { active: number; completed: number; failed: number };
+  getCoinAlgorithm: (coinType: CoinType) => "SHA-256" | "Ethash" | "Scrypt" | "Solana-PoH" | "Equihash";
+};
+
+// Define algorithm mapping for each coin
+const coinAlgorithmMap: Record<CoinType, "SHA-256" | "Ethash" | "Scrypt" | "Solana-PoH" | "Equihash"> = {
+  "Bitcoin": "SHA-256",
+  "Ethereum": "Ethash",
+  "Solana": "Solana-PoH",
+  "Litecoin": "Scrypt",
+  "Dogecoin": "Scrypt"
 };
 
 const MiningContext = createContext<MiningContextType | null>(null);
@@ -111,7 +126,7 @@ export const MiningProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       // Simulate fetching all users' tasks
       const mockAllTasks: MiningTask[] = [
         ...userTasks,
-        // Add some mock tasks from other users
+        // Add some mock tasks from other users with various coins
         {
           id: "mock1",
           userId: "user1",
@@ -120,6 +135,7 @@ export const MiningProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           startTime: new Date(Date.now() - 3600000).toISOString(),
           progress: 78,
           algorithm: "SHA-256",
+          coinType: "Bitcoin",
           targetReward: 0.05
         },
         {
@@ -131,6 +147,7 @@ export const MiningProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           endTime: new Date(Date.now() - 1800000).toISOString(),
           progress: 100,
           algorithm: "Ethash",
+          coinType: "Ethereum",
           targetReward: 0.08,
           actualReward: 0.074
         },
@@ -143,7 +160,19 @@ export const MiningProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           endTime: new Date(Date.now() - 4800000).toISOString(),
           progress: 23,
           algorithm: "Scrypt",
+          coinType: "Dogecoin",
           targetReward: 0.03
+        },
+        {
+          id: "mock4",
+          userId: "user4",
+          status: "running",
+          hashrate: 320.8,
+          startTime: new Date(Date.now() - 1200000).toISOString(),
+          progress: 35,
+          algorithm: "Solana-PoH",
+          coinType: "Solana",
+          targetReward: 0.12
         }
       ];
       
@@ -152,9 +181,18 @@ export const MiningProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
   }, [userTasks, user?.role]);
   
-  const startMining = async (algorithm: "SHA-256" | "Ethash" | "Scrypt", targetReward: number): Promise<MiningTask> => {
+  const getCoinAlgorithm = (coinType: CoinType) => {
+    return coinAlgorithmMap[coinType];
+  };
+  
+  const startMining = async (algorithm: "SHA-256" | "Ethash" | "Scrypt" | "Solana-PoH" | "Equihash", coinType: CoinType, targetReward: number): Promise<MiningTask> => {
     if (!user) {
       throw new Error("User must be logged in to start mining");
+    }
+    
+    // Check if user has permission to mine based on role
+    if (user.role !== "admin" && user.role !== "client") {
+      throw new Error("User does not have permission to start mining tasks");
     }
     
     // Simulate starting a mining task
@@ -166,6 +204,7 @@ export const MiningProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       startTime: new Date().toISOString(),
       progress: 0,
       algorithm,
+      coinType,
       targetReward
     };
     
@@ -271,7 +310,8 @@ export const MiningProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       getTaskById,
       getActiveTask,
       getSystemHashrate,
-      getSystemTasks
+      getSystemTasks,
+      getCoinAlgorithm
     }}>
       {children}
     </MiningContext.Provider>

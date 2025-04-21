@@ -7,12 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Server, TrendingUp } from "lucide-react";
+import { Server, Coins } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 
 const Mining = () => {
-  const { userTasks, startMining } = useMining();
+  const { userTasks, startMining, getCoinAlgorithm } = useMining();
   const [isStarting, setIsStarting] = useState(false);
-  const [algorithm, setAlgorithm] = useState<"SHA-256" | "Ethash" | "Scrypt">("SHA-256");
+  const [coinType, setCoinType] = useState<"Bitcoin" | "Ethereum" | "Solana" | "Litecoin" | "Dogecoin">("Bitcoin");
   const [targetReward, setTargetReward] = useState("0.05");
   
   // Group tasks by status
@@ -27,9 +28,19 @@ const Mining = () => {
   const handleStartMining = async () => {
     setIsStarting(true);
     try {
-      await startMining(algorithm, parseFloat(targetReward));
+      const algorithm = getCoinAlgorithm(coinType);
+      await startMining(algorithm, coinType, parseFloat(targetReward));
+      toast({
+        title: "Mining started",
+        description: `Started mining ${coinType} with ${algorithm} algorithm.`
+      });
     } catch (error) {
       console.error("Failed to start mining:", error);
+      toast({
+        title: "Failed to start mining",
+        description: error instanceof Error ? error.message : "Unknown error occurred",
+        variant: "destructive"
+      });
     } finally {
       setIsStarting(false);
     }
@@ -51,20 +62,25 @@ const Mining = () => {
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="algorithm">Mining Algorithm</Label>
+              <Label htmlFor="coin">Coin to Mine</Label>
               <Select
-                value={algorithm}
-                onValueChange={(value) => setAlgorithm(value as "SHA-256" | "Ethash" | "Scrypt")}
+                value={coinType}
+                onValueChange={(value) => setCoinType(value as any)}
               >
-                <SelectTrigger id="algorithm">
-                  <SelectValue placeholder="Select algorithm" />
+                <SelectTrigger id="coin">
+                  <SelectValue placeholder="Select coin" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="SHA-256">SHA-256</SelectItem>
-                  <SelectItem value="Ethash">Ethash</SelectItem>
-                  <SelectItem value="Scrypt">Scrypt</SelectItem>
+                  <SelectItem value="Bitcoin">Bitcoin (BTC)</SelectItem>
+                  <SelectItem value="Ethereum">Ethereum (ETH)</SelectItem>
+                  <SelectItem value="Solana">Solana (SOL)</SelectItem>
+                  <SelectItem value="Litecoin">Litecoin (LTC)</SelectItem>
+                  <SelectItem value="Dogecoin">Dogecoin (DOGE)</SelectItem>
                 </SelectContent>
               </Select>
+              <p className="text-xs text-muted-foreground">
+                Algorithm: {getCoinAlgorithm(coinType)}
+              </p>
             </div>
             <div className="space-y-2">
               <Label htmlFor="target">Target Reward</Label>
@@ -84,14 +100,24 @@ const Mining = () => {
           <Button 
             onClick={handleStartMining} 
             disabled={isStarting || activeTasks.length > 0}
-            className="w-full"
+            className="w-full flex items-center"
           >
-            <Server className="mr-2 h-4 w-4" />
-            {isStarting 
-              ? "Starting Mining..." 
-              : activeTasks.length > 0 
-                ? "Complete Active Task First" 
-                : "Start Mining"}
+            {isStarting ? (
+              <>
+                <Server className="mr-2 h-4 w-4 animate-pulse" />
+                Starting Mining...
+              </>
+            ) : activeTasks.length > 0 ? (
+              <>
+                <Server className="mr-2 h-4 w-4" />
+                Complete Active Task First
+              </>
+            ) : (
+              <>
+                <Coins className="mr-2 h-4 w-4" />
+                Start Mining {coinType}
+              </>
+            )}
           </Button>
         </CardFooter>
       </Card>
