@@ -5,9 +5,7 @@ type User = {
   id: string;
   username: string;
   email: string;
-  name: string; // Add name property
-  role: "admin" | "client"; // Change "user" role to "client"
-  createdAt: string; // Add createdAt property
+  role: "user" | "admin";
 };
 
 type AuthContextType = {
@@ -51,10 +49,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const mockUser: User = {
         id: Math.random().toString(36).substring(2, 9),
         username: email.split("@")[0],
-        name: email.split("@")[0].charAt(0).toUpperCase() + email.split("@")[0].slice(1), // Generate a name from username
         email,
-        role: isAdmin ? "admin" : "client",
-        createdAt: new Date().toISOString(),
+        role: isAdmin ? "admin" : "user",
       };
       
       localStorage.setItem("miningUser", JSON.stringify(mockUser));
@@ -80,10 +76,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const mockUser: User = {
         id: Math.random().toString(36).substring(2, 9),
         username,
-        name: username.charAt(0).toUpperCase() + username.slice(1),
         email,
-        role: "client",
-        createdAt: new Date().toISOString(),
+        role: "user",
       };
       
       localStorage.setItem("miningUser", JSON.stringify(mockUser));

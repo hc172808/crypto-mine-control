@@ -2,7 +2,6 @@
 import React, { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMining } from "@/contexts/MiningContext";
-import { useWallet } from "@/contexts/WalletContext";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,19 +9,17 @@ import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Shield, User, Wallet, Key } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Shield, User, Wallet } from "lucide-react";
 
 const Profile = () => {
   const { user } = useAuth();
   const { userTasks } = useMining();
-  const { wallets } = useWallet();
   const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     name: user?.name || "",
     email: user?.email || "",
-    walletAddress: wallets[0]?.address || "Connect a wallet to display address"
+    walletAddress: "0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9" // Example wallet address
   });
 
   const completedTasks = userTasks.filter(task => task.status === "completed");
@@ -63,7 +60,7 @@ const Profile = () => {
               <div className="flex justify-center mt-2">
                 <Badge className="flex items-center gap-1 capitalize">
                   <Shield className="h-3 w-3" />
-                  {user?.role || "client"}
+                  {user?.role || "user"}
                 </Badge>
               </div>
             </CardHeader>
@@ -72,17 +69,8 @@ const Profile = () => {
                 <p>Member since: {new Date(user?.createdAt || Date.now()).toLocaleDateString()}</p>
                 <p>Tasks completed: {completedTasks.length}</p>
                 <p>Total earned: {totalEarned.toFixed(5)} coins</p>
-                <p>Wallets: {wallets.length}</p>
               </div>
             </CardContent>
-            <CardFooter>
-              <Button asChild variant="outline" className="w-full">
-                <Link to="/wallets">
-                  <Wallet className="mr-2 h-4 w-4" />
-                  Manage Wallets
-                </Link>
-              </Button>
-            </CardFooter>
           </Card>
         </div>
 
@@ -119,25 +107,16 @@ const Profile = () => {
               <div className="space-y-2">
                 <Label htmlFor="walletAddress" className="flex items-center gap-1">
                   <Wallet className="h-4 w-4" />
-                  <span>Default Wallet Address</span>
+                  <span>Wallet Address</span>
                 </Label>
-                <div className="flex">
-                  <Input 
-                    id="walletAddress" 
-                    name="walletAddress" 
-                    value={formData.walletAddress} 
-                    disabled={true}
-                    className="font-mono text-sm flex-1"
-                  />
-                  {wallets.length === 0 && (
-                    <Button variant="outline" className="ml-2" asChild>
-                      <Link to="/wallet-setup">
-                        <Key className="mr-2 h-4 w-4" />
-                        Create Wallet
-                      </Link>
-                    </Button>
-                  )}
-                </div>
+                <Input 
+                  id="walletAddress" 
+                  name="walletAddress" 
+                  value={formData.walletAddress} 
+                  onChange={handleInputChange} 
+                  disabled={!isEditing} 
+                  className="font-mono text-sm"
+                />
               </div>
             </CardContent>
             <CardFooter className="flex justify-between">
