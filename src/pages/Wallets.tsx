@@ -46,6 +46,74 @@ const Wallets = () => {
     return { type, total };
   });
 
+  const handleCreateWallet = async () => {
+    try {
+      await generateWallet(newWalletName, newWalletType);
+      setIsNewWalletOpen(false);
+      setNewWalletName("");
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to create wallet",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleAddExternalWallet = async () => {
+    try {
+      await addExternalWallet(externalWalletName, externalWalletAddress, externalWalletType);
+      setIsExternalWalletOpen(false);
+      setExternalWalletName("");
+      setExternalWalletAddress("");
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to add external wallet",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleSendCoins = async () => {
+    try {
+      await sendCoins(selectedWalletId, sendAddress, parseFloat(sendAmount));
+      setIsSendOpen(false);
+      setSelectedWalletId("");
+      setSendAddress("");
+      setSendAmount("");
+      toast({
+        title: "Transaction Initiated",
+        description: "Your transaction has been submitted"
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to send coins",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleConvertCoins = async () => {
+    try {
+      await convertCoins(convertFromWalletId, convertToType, parseFloat(convertAmount));
+      setIsConvertOpen(false);
+      setConvertFromWalletId("");
+      setConvertAmount("");
+      toast({
+        title: "Conversion Initiated",
+        description: "Your conversion has been submitted"
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to convert coins",
+        variant: "destructive"
+      });
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">

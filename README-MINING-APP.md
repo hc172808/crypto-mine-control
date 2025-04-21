@@ -19,12 +19,87 @@ A full-featured mobile application for managing cryptocurrency mining operations
 
 ## Technology Stack
 
-- **Frontend**: React with TypeScript and Tailwind CSS
-- **Mobile Framework**: Capacitor for cross-platform (iOS/Android) compatibility
-- **UI Components**: ShadCN UI components for a consistent design
+### A. Mobile App
+- **Framework**: React with Capacitor for cross-platform (iOS/Android) support
+- **UI Libraries**: ShadCN UI components for consistent design
 - **State Management**: React Context API for state management
-- **Routing**: React Router for navigation
-- **Authentication**: Custom JWT-based authentication (simulated for demo)
+
+### B. Back End (Mining Controller & API)
+- **Server Language**: Node.js (with Express.js)
+- **Mining Daemons**:
+  - XMRig for Monero
+  - T-Rex or Gminer for ETC, RVN, VTC
+  - Litecoin pool API for DOGE
+- **API**: REST API
+- **Real-time**: WebSocket for mining stats
+
+### C. Admin Dashboard
+- **Frontend**: React with TypeScript
+- **Backend**: Same as mobile (Node.js API)
+- **Auth**: JWT authentication
+
+### D. Database
+- **Main DB**: PostgreSQL
+- **Cache**: Redis (for quick stats, sessions)
+
+### E. DevOps & Hosting
+- **Server Hosting**: AWS EC2 / DigitalOcean (GPU-capable)
+- **Load Balancer**: Nginx
+- **CI/CD**: GitHub Actions
+- **Push Notifications**: Firebase Cloud Messaging (FCM)
+
+## Security
+- HTTPS for all data traffic
+- JWT-based authentication
+- Bcrypt password hashing
+- Server resource limits per user
+- Role-based access control (RBAC) for admins
+- Abuse protection (mining task throttling)
+
+## Monetization Options
+- In-app purchases (extra hashpower, faster payouts)
+- Ad integration (rewarded ads for boosts)
+- Subscription tiers (Pro users get better rewards)
+- Token launch: Gamified reward model with custom coin
+
+## Roadmap / Development Phases
+
+### Phase 1: Planning & Design
+- Define UI/UX for both mobile and admin
+- Choose coins and finalize back-end mining tools
+- Map out server infrastructure
+
+### Phase 2: MVP Build
+- Build mobile app with mining control UI
+- Create basic API and mining job queue system
+- Integrate Monero (XMR) mining only
+- Admin dashboard with user view
+
+### Phase 3: Multi-Coin Support & Scaling
+- Add ETC, RVN, VTC, DOGE mining support
+- Expand mining server infrastructure
+- Add analytics, wallet management, and real-time updates
+
+### Phase 4: Payouts & Security
+- Enable crypto wallet withdrawals
+- Set up anti-abuse systems
+- Conduct penetration testing
+
+### Phase 5: Launch & Monetization
+- Release to Google Play / App Store
+- Run marketing campaigns
+- Add monetization features
+
+## Supported Coins for Mining
+
+| Coin | Algorithm | Hardware |
+|------|-----------|----------|
+| Monero (XMR) | RandomX | CPU |
+| Ethereum Classic (ETC) | Etchash | GPU |
+| Ravencoin (RVN) | KawPow | GPU |
+| Vertcoin (VTC) | Verthash | CPU/GPU |
+| Dogecoin (DOGE) | Scrypt (via Litecoin) | GPU |
+| Custom Token | Internal | N/A |
 
 ## Getting Started
 
@@ -73,53 +148,6 @@ npx cap add android
 ```
 npx cap open ios     # Opens Xcode for iOS
 npx cap open android # Opens Android Studio
-```
-
-## Mobile App Structure
-
-### User Flow
-1. **Authentication**: Users start at the login/registration screen
-2. **Dashboard**: After login, users see their mining overview
-3. **Mining Control**: Users can start/manage mining tasks
-4. **Statistics**: Users can view their mining performance
-
-### Admin Flow
-1. **Admin Dashboard**: Administrators see a comprehensive overview
-2. **User Management**: Admins can view and manage users
-3. **System Monitoring**: Admins can view system-wide metrics
-
-## Development Notes
-
-### Adding a New Mining Algorithm
-To add support for a new mining algorithm:
-1. Modify the `MiningContext.tsx` file to include the new algorithm type
-2. Update the algorithm selection in the Mining.tsx component
-3. Implement algorithm-specific logic in the mining task handlers
-
-### Mobile Optimization
-- The app is optimized for mobile with responsive design
-- Touch-friendly controls and appropriately sized elements
-- Efficient data handling to minimize battery consumption
-
-## Deployment
-
-### Web Version
-Build the web version for deployment:
-```
-npm run build
-```
-
-### Native Mobile Apps
-For iOS:
-```
-npx cap sync
-npx cap copy ios
-```
-
-For Android:
-```
-npx cap sync
-npx cap copy android
 ```
 
 ## License
