@@ -1,4 +1,3 @@
-
 import React, { createContext, useState, useContext, useEffect } from "react";
 import { useAuth } from "./AuthContext";
 
@@ -17,8 +16,6 @@ type MiningTask = {
   targetReward: number;
   actualReward?: number;
 };
-
-type UserRole = "admin" | "client";
 
 type MiningContextType = {
   userTasks: MiningTask[];
